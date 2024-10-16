@@ -43,6 +43,18 @@ public class ContohController {
         return dao.findAll(page,size,sort,sortBy,request);
     }
 
+    @GetMapping("/v1/param/{page}/{sort}/{sort-by}")
+    public ResponseEntity<Object> findByParam(
+            @PathVariable(value = "page") Integer page,
+            @PathVariable(value = "sort") String sort,
+            @PathVariable(value = "sort-by") String sortBy,
+            @RequestParam(value = "size") Integer size,
+            @RequestParam(value = "col") String column,
+            @RequestParam(value = "val") String value,
+            HttpServletRequest request){
+        return dao.findByParam(page,size,sort,sortBy,column,value,request);
+    }
+
     @GetMapping("/v1/{id}")
     public ResponseEntity<Object> findById(
             @PathVariable(value = "id") Long id,

@@ -16,7 +16,7 @@
 //import java.util.List;
 //
 //@Repository
-//public class ContohDaoImplMySQL implements IDao<Contoh> {
+//public class ContohDaoImplPostgresql implements IDao<Contoh> {
 
 //@Autowired
 //private JdbcTemplate jdbcTemplate;
@@ -26,16 +26,12 @@
 //    int intResult = 0;
 //    try
 //    {
-//        intResult = jdbcTemplate.update("call demo.sp_add_mst_contoh(?,?,?,?,?,?)",
-//                contoh.getContohInt(),
-//                contoh.getContohDouble(),
-//                contoh.getContohString(),
-//                contoh.getContohFloat(),
-//                contoh.getContohBoolean(),
+//        intResult = jdbcTemplate.update("call sp_add_mst_contoh(?,?,?,?,?,?)", contoh.getContohInt(),
+//                contoh.getContohDouble(),contoh.getContohString(),contoh.getContohFloat(),contoh.getContohBoolean(),
 //                new java.sql.Date(((Date) contoh.getContohDate()).getTime()));
-//        if(intResult != 1){
-//            throw new Exception("DATA GAGAL DISIMPAN");
-//        }
+////            if(intResult != 1){
+////                throw new Exception();
+////            }
 //    }
 //    catch (Exception e)
 //    {
@@ -52,7 +48,8 @@
 //        jdbcTemplate.call(new CallableStatementCreator() {
 //            @Override
 //            public CallableStatement createCallableStatement(Connection con) throws SQLException {
-//                CallableStatement cs = con.prepareCall("{CALL demo.sp_update_mst_contoh(?,?,?,?,?,?,?)}");
+//
+//                CallableStatement cs = con.prepareCall("CALL sp_update_mst_contoh (?,?,?,?,?,?,?)");
 //                cs.setInt(1, contoh.getContohInt());
 //                cs.setDouble(2, contoh.getContohDouble());
 //                cs.setString(3, contoh.getContohString());
@@ -79,7 +76,7 @@
 //        jdbcTemplate.call(new CallableStatementCreator() {
 //            @Override
 //            public CallableStatement createCallableStatement(Connection con) throws SQLException {
-//                CallableStatement cs = con.prepareCall("{CALL demo.sp_delete_mst_contoh(?)}");
+//                CallableStatement cs = con.prepareCall("CALL sp_delete_mst_contoh (?)");
 //                cs.setLong(1,id);
 //                return cs;
 //            }
@@ -91,9 +88,43 @@
 //    }
 //    return new ResponseEntity<Object>(new HashMap<>(),HttpStatus.CREATED);
 //}
+//
+//@Override
+//public ResponseEntity<Object> findAll(int page,
+//                                      int size,
+//                                      String sort,
+//                                      String sortBy,
+//                                      HttpServletRequest request) {
+//    Object object[] = new Object[4];
+//    object[0] = page;
+//    object[1] = size;
+//    object[2] = sort;
+//    object[3] = sortBy;
+//
+//    List<Contoh> contohList  = jdbcTemplate.query("SELECT * FROM sp_find_all(?,?,?,?)", new RowMapper<Contoh>() {
+//        @Override
+//        public Contoh mapRow(ResultSet rs, int rowNum) throws SQLException {
+//            Contoh contoh = new Contoh();
+//            contoh.setId(rs.getLong("id"));
+//            contoh.setContohInt(rs.getInt("contoh_int"));
+//            contoh.setContohDouble(rs.getDouble("contoh_double"));
+//            contoh.setContohFloat(rs.getFloat("contoh_float"));
+//            contoh.setContohString(rs.getString("contoh_string"));
+//            contoh.setContohBoolean(rs.getBoolean("contoh_boolean"));
+//            contoh.setContohDate(rs.getDate("contoh_date"));
+//            return contoh;
+//        }
+//    },object);
+//
+//    if(contohList.isEmpty()){
+//        return new ResponseEntity<Object>("Data Tidak Ditemukan",HttpStatus.BAD_REQUEST);
+//    }
+//    return new ResponseEntity<Object>(contohList,HttpStatus.OK);
+//}
+//
 //@Override
 //public ResponseEntity<Object> findByParam(int page, int size ,
-//                                          String sort, String sortBy, String column,
+//                                          String sort,String sortBy,String column,
 //                                          String value, HttpServletRequest request) {
 //    Object object[] = new Object[6];
 //    object[0] = page;
@@ -119,39 +150,6 @@
 //    },object);
 //
 //    if(contohList.isEmpty()){
-//        return new ResponseEntity<Object>("Data Tidak Ditemukan", HttpStatus.BAD_REQUEST);
-//    }
-//    return new ResponseEntity<Object>(contohList,HttpStatus.OK);
-//}
-//
-//@Override
-//public ResponseEntity<Object> findAll(int page,
-//                                      int size,
-//                                      String sort,
-//                                      String sortBy,
-//                                      HttpServletRequest request) {
-//    Object object[] = new Object[4];
-//    object[0] = page;
-//    object[1] = size;
-//    object[2] = sort;
-//    object[3] = sortBy;
-//
-//    List<Contoh> contohList  = jdbcTemplate.query("{CALL demo.sp_find_all(?,?,?,?)}", new RowMapper<Contoh>() {
-//        @Override
-//        public Contoh mapRow(ResultSet rs, int rowNum) throws SQLException {
-//            Contoh contoh = new Contoh();
-//            contoh.setId(rs.getLong("id"));
-//            contoh.setContohInt(rs.getInt("contoh_int"));
-//            contoh.setContohDouble(rs.getDouble("contoh_double"));
-//            contoh.setContohFloat(rs.getFloat("contoh_float"));
-//            contoh.setContohString(rs.getString("contoh_string"));
-//            contoh.setContohBoolean(rs.getBoolean("contoh_boolean"));
-//            contoh.setContohDate(rs.getDate("contoh_date"));
-//            return contoh;
-//        }
-//    },object);
-//
-//    if(contohList.isEmpty()){
 //        return new ResponseEntity<Object>("Data Tidak Ditemukan",HttpStatus.BAD_REQUEST);
 //    }
 //    return new ResponseEntity<Object>(contohList,HttpStatus.OK);
@@ -162,7 +160,7 @@
 //public ResponseEntity<Object> findById(Long id, HttpServletRequest request) {
 //    Object [] objects = new Object[1];
 //    objects[0] = id;
-//    Contoh contoh  = jdbcTemplate.queryForObject("{CALL demo.sp_find_by_id(?)}", new RowMapper<Contoh>() {
+//    Contoh contoh  = jdbcTemplate.queryForObject("SELECT * FROM sp_find_by_id(?)", new RowMapper<Contoh>() {
 //        @Override
 //        public Contoh mapRow(ResultSet rs, int rowNum) throws SQLException {
 //            Contoh contoh = new Contoh();

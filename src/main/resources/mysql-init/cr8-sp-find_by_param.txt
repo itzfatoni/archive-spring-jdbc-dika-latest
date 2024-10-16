@@ -1,0 +1,49 @@
+CREATE DEFINER=`root`@`%` PROCEDURE `sp_find_by_param`(
+c_page INT,
+c_size INT,
+c_sort CHAR(25),
+c_sort_by CHAR(25),
+c_column CHAR(25),
+c_value CHAR(25) )
+BEGIN
+DECLARE code CHAR(5) DEFAULT '00000';
+DECLARE err_no CHAR(5) DEFAULT '00000';
+DECLARE msg TEXT;
+DECLARE currentIndex INT ; -- penampung untuk offset nya
+DECLARE v_main TEXT; -- untuk query awal
+DECLARE v_col TEXT; -- untuk sambungan pemilihan nama kolom yang menjadi kondisi
+DECLARE v_col_order TEXT; -- untuk sambungan pemilihan nama kolom yang akan menjadi acuan untuk sorting
+DECLARE v_sort TEXT; -- untuk sambungan asc / desc
+DECLARE exit handler for SQLEXCEPTION
+ BEGIN
+    GET DIAGNOSTICS CONDITION 1
+        code = RETURNED_SQLSTATE, msg = MESSAGE_TEXT,err_no=MYSQL_ERRNO;
+                 ROLLBACK;
+    INSERT INTO log_error(sql_state,err_msg,err_no,created_by,created_at,trx,fx_name) VALUES (code,msg,err_no,1,CURRENT_TIMESTAMP,'SP','sp_find_by_param');
+ END;
+ SET currentIndex = c_page * c_size;
+ SET v_main = 'SELECT * FROM mst_contoh WHERE ';
+ SELECT CASE LOWER(c_column)
+        WHEN 'int' THEN 'CAST(contoh_int AS CHAR)'
+        WHEN 'double' THEN 'CAST(contoh_double AS CHAR)'
+        WHEN 'boolean' THEN 'CAST(contoh_boolean as CHAR)'
+        WHEN 'float' THEN 'CAST(contoh_float as CHAR)'
+        WHEN 'string' THEN 'contoh_string'
+        ELSE 'CAST(id AS CHAR)'
+        END INTO v_col;
+    SELECT CASE LOWER(c_sort_by)
+        WHEN 'int' THEN 'contoh_int'
+        WHEN 'double' THEN 'contoh_double'
+        WHEN 'boolean' THEN 'contoh_boolean'
+        WHEN 'float' THEN 'contoh_float'
+        WHEN 'string' THEN 'contoh_string'
+        ELSE 'id'
+        END INTO v_col_order;
+
+    SELECT CASE LOWER(c_sort) WHEN 'asc' THEN 'ASC' ELSE 'DESC' END INTO v_sort;
+		SELECT concat(v_main,' ',v_col,' LIKE  ',CHAR(39),'%',c_value,'%',CHAR(39),' ORDER BY ',v_col_order, ' ',v_sort, ' LIMIT ',currentIndex,',',c_size) INTO @x ;
+
+PREPARE stmt FROM @x;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+END

@@ -1,0 +1,31 @@
+DROP FUNCTION
+IF
+	EXISTS sp_find_by_param;
+CREATE
+	OR REPLACE FUNCTION sp_find_by_param(
+	c_page INT,
+	 c_size INT,
+	  c_sort VARCHAR,
+	   c_sort_by VARCHAR,
+	    c_column VARCHAR ,
+	    c_value VARCHAR
+	   ) RETURNS SETOF mst_contoh AS $$ BEGIN
+		RETURN QUERY
+	SELECT
+		*
+	FROM
+		mst_contoh
+		WHERE
+		CASE LOWER(c_column)
+		WHEN 'int' THEN CAST(contoh_int AS TEXT)
+		WHEN 'double' THEN CAST(contoh_double AS TEXT)
+		WHEN 'boolean' THEN CAST(contoh_boolean as TEXT)
+		WHEN 'float' THEN CAST(contoh_float as TEXT)
+		WHEN 'string' THEN contoh_string
+        ELSE CAST(id AS TEXT)
+		END
+		LIKE '%'||c_value||'%'
+	ORDER BY
+	id ASC
+	LIMIT c_size OFFSET ( c_page * c_size );
+	END; $$ LANGUAGE 'plpgsql';

@@ -12,6 +12,6 @@ public interface IDao<T> {
     public ResponseEntity<Object> update(Long id, T t ,HttpServletRequest request);
     public ResponseEntity<Object> delete(Long id,HttpServletRequest request);
     public ResponseEntity<Object> findAll(int page,int size ,String sort,String sortBy,HttpServletRequest request);
-    public Boolean findByParam(String param, String column, HttpServletRequest request);
+    public ResponseEntity<Object> findByParam(int page, int size , String sort,String sortBy,String column, String value, HttpServletRequest request);
     public ResponseEntity<Object> findById(Long id, HttpServletRequest request);
 }
