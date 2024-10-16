@@ -4,14 +4,10 @@ import com.juaracoding.core.IDao;
 import com.juaracoding.model.Contoh;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.*;
-import org.springframework.jdbc.core.simple.SimpleJdbcCall;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Repository;
-
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
@@ -27,12 +23,12 @@ public class ContohDaoImpl implements IDao<Contoh> {
         int intResult = 0;
         try
         {
-            intResult = jdbcTemplate.update("call demo.sp_add_mst_contoh(?,?,?,?,?,?)", contoh.getContohInt(),
+            intResult = jdbcTemplate.update("call sp_add_mst_contoh(?,?,?,?,?,?)", contoh.getContohInt(),
                     contoh.getContohDouble(),contoh.getContohString(),contoh.getContohFloat(),contoh.getContohBoolean(),
                     new java.sql.Date(((Date) contoh.getContohDate()).getTime()));
-            if(intResult != 1){
-                throw new Exception("DATA GAGAL DISIMPAN");
-            }
+//            if(intResult != 1){
+//                throw new Exception();
+//            }
         }
         catch (Exception e)
         {
@@ -50,7 +46,7 @@ public class ContohDaoImpl implements IDao<Contoh> {
                 @Override
                 public CallableStatement createCallableStatement(Connection con) throws SQLException {
 
-                    CallableStatement cs = con.prepareCall("{CALL demo.sp_update_mst_contoh(?,?,?,?,?,?,?)}");
+                    CallableStatement cs = con.prepareCall("CALL sp_update_mst_contoh (?,?,?,?,?,?,?)");
                     cs.setInt(1, contoh.getContohInt());
                     cs.setDouble(2, contoh.getContohDouble());
                     cs.setString(3, contoh.getContohString());
@@ -77,7 +73,7 @@ public class ContohDaoImpl implements IDao<Contoh> {
             jdbcTemplate.call(new CallableStatementCreator() {
                 @Override
                 public CallableStatement createCallableStatement(Connection con) throws SQLException {
-                    CallableStatement cs = con.prepareCall("{CALL demo.sp_delete_mst_contoh(?)}");
+                    CallableStatement cs = con.prepareCall("CALL sp_delete_mst_contoh (?)");
                     cs.setLong(1,id);
                     return cs;
                 }
@@ -102,7 +98,7 @@ public class ContohDaoImpl implements IDao<Contoh> {
         object[2] = sort;
         object[3] = sortBy;
 
-        List<Contoh> contohList  = jdbcTemplate.query("{CALL demo.sp_find_all(?,?,?,?)}", new RowMapper<Contoh>() {
+        List<Contoh> contohList  = jdbcTemplate.query("SELECT * FROM sp_find_all(?,?,?,?)", new RowMapper<Contoh>() {
             @Override
             public Contoh mapRow(ResultSet rs, int rowNum) throws SQLException {
                 Contoh contoh = new Contoh();
@@ -139,7 +135,7 @@ public class ContohDaoImpl implements IDao<Contoh> {
         };
         Object [] objects = new Object[1];
         objects[0] = id;
-        Contoh contoh  = jdbcTemplate.queryForObject("{CALL demo.sp_find_by_id(?)}", new RowMapper<Contoh>() {
+        Contoh contoh  = jdbcTemplate.queryForObject("SELECT * FROM sp_find_by_id(?)", new RowMapper<Contoh>() {
             @Override
             public Contoh mapRow(ResultSet rs, int rowNum) throws SQLException {
                 Contoh contoh = new Contoh();
