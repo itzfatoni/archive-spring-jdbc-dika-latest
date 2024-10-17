@@ -17,6 +17,7 @@ import java.util.List;
 
 @Repository
 public class ContohDaoImpl implements IDao<Contoh> {
+
 @Autowired
 private JdbcTemplate jdbcTemplate;
 
@@ -25,7 +26,7 @@ public ResponseEntity<Object> save(Contoh contoh, HttpServletRequest request) {
     int intResult = 0;
     try
     {
-        intResult = jdbcTemplate.update("call demo.sp_add_mst_contoh(?,?,?,?,?,?)",
+        intResult = jdbcTemplate.update("CALL demo.sp_add_mst_contoh(?,?,?,?,?,?)",
                 contoh.getContohInt(),
                 contoh.getContohDouble(),
                 contoh.getContohString(),
@@ -155,6 +156,7 @@ public ResponseEntity<Object> findAll(int page,
     }
     return new ResponseEntity<Object>(contohList,HttpStatus.OK);
 }
+
 
 @Override
 public ResponseEntity<Object> findById(Long id, HttpServletRequest request) {
